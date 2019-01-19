@@ -1,0 +1,38 @@
+{% extends 'common/userpublic.html' %}
+{% load static %}
+
+        {% block header %}
+          管理收货地址
+        {% endblock %}
+
+        {% block headerother %}
+           <div class="am-header-right am-header-nav">
+                    <a href="{% url 'user:添加地址' %}" class="">
+                        <i class="am-icon-plus"></i>
+                    </a>
+            </div>
+        {% endblock %}
+
+        {% block body %}
+            <div style="height: 49px;"></div>
+	    <ul class="address-list">
+	    	<li class="curr">
+	    		<p>收货人：徐女士&nbsp;&nbsp;182********</p>
+	    		<p class="order-add1">收货地址：江西省南昌市 青云谱区解放西路258号江西省南昌市 青云谱区解放西路258号</p>
+	    	    <hr />
+	    	    <div class="address-cz">
+	    	    	<label class="am-radio am-warning">
+                       <input type="radio" name="radio3" value="" data-am-ucheck checked> 设为默认
+                    </label>
+                    <a href="{% url 'user:编辑地址' %}"><img src="{% static 'images/bj.png' %}" width="18" />&nbsp;编辑</a>
+                    <a href="{% url 'user:删除地址' %}">删除</a>
+	    	    </div>
+	    	</li>
+	    </ul>
+        {% endblock %}
+
+        {% block foot %}
+            <script src="{% static 'js/jquery.min.js'%}"></script>
+            <script src="{% static 'js/amazeui.min.js' %}"></script>
+        {% endblock %}
+

@@ -1,0 +1,44 @@
+{% extends 'common/userpublic.html' %}
+{% load static %}
+
+        {% block head %}
+        <script src="{% static 'js/area.js' %}"></script>
+        {% endblock %}
+
+
+        {% block header %}
+            编辑收货地址
+        {% endblock %}
+
+        {% block body %}
+        <form action="" method="post">
+        {% csrf_token %}
+            <div style="height: 60px;"></div>
+            <ul class="address">
+                <li>
+                    <a href=""><input type="text" class="add-input"  disabled="disabled" placeholder="宿舍区" />
+                    <i class="am-icon-angle-right" style="float: right; margin-top: 5px;"></i></a>
+                </li>
+                <li>
+                    <a href=""><input type="text" class="add-input"  disabled="disabled" placeholder="哪栋楼" />
+                    <i class="am-icon-angle-right" style="float: right; margin-top: 5px;"></i></a>
+                </li>
+                <li><input type="text" class="add-input" placeholder="你在哪" /></li>
+                <li><input type="text" class="add-input" placeholder="收货人" /></li>
+                <li><input type="text" class="add-input" placeholder="13000000000" /></li>
+            </ul>
+            <div class="moren">
+                <label class="am-checkbox am-warning">
+                     <input type="checkbox" checked="checked" value="" data-am-ucheck checked>设为默认
+                </label>
+
+            </div>
+            <input type="submit" class="login-btn" value="确认提交">
+        </form>
+        {% endblock %}
+
+        {% block foot %}
+            <script src="{% static 'js/jquery.min.js' %}"></script>
+            <script src="{% static 'js/amazeui.min.js' %}"></script>
+        {% endblock %}
+
