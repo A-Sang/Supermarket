@@ -9,6 +9,10 @@ from user import hash_password
 
 
 #个人中心
+from user.forms import UserForm
+from user.models import User
+
+
 def member(request):
     return render(request,'user/member.html')
 
@@ -28,17 +32,27 @@ class LoginView(View):
         return HttpResponse('200')
 
 #注册
-#@hash_password
 class RegisterView(View):
 
     def get(self, request):
         return render(request, 'user/reg.html')
 
     def post(self, request):
-        return redirect('user:登录')
+        data=request.POST
+        form=UserForm(data)
+        if form.is_valid():
+            user=User()
+            user.phone_num=form.cleaned_data.get('phone_num')
+            user.password=hash_password(form.cleaned_data.get('password'))
+            user.save()
+            return redirect('user:登录')
+        else:
+            context={'data':data,
+                     'error':form.errors}
+            return render(request,'user/reg.html',context=context)
 
 #设置新密码
-#@hash_password
+
 class NewPwdView(View):
 
     def get(self, request):
@@ -48,7 +62,7 @@ class NewPwdView(View):
         return HttpResponse('200')
 
 #忘记密码
-#@hash_password
+
 class ForPwdView(View):
 
     def get(self, request):
