@@ -1,7 +1,11 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
-from user import hash_password
+
+from db.base_view import BaseView
+from user import hash_password, set_session, check_session
+from user.forms import RegModelForm, LoginModelForm
+from user.models import User
 # Create your views here.
 
 
@@ -9,37 +13,45 @@ from user import hash_password
 
 
 #个人中心
-from user.forms import UserForm
-from user.models import User
-
-
+@check_session
 def member(request):
     return render(request,'user/member.html')
 
 #安全设置
+@check_session
 def saftystep(request):
     return render(request, 'user/saftystep.html')
 
 
 # 登录
-#@hash_password
 class LoginView(View):
-
+        #get请求展示登录页面
     def get(self, request):
         return render(request, 'user/login.html')
-
+        #post请求,获取参数进行验证
     def post(self, request):
-        return HttpResponse('200')
+        data=request.POST
+        form=LoginModelForm(data)
+        if form.is_valid():
+            user=form.cleaned_data.get('user')
+            set_session(request,user)
+            #验证成功跳转登录中心
+            return redirect('user:个人中心')
+        else:
+            context={'data':data,
+                     'error':form.errors}
+            return render(request,'user/login.html',context=context)
 
 #注册
 class RegisterView(View):
-
+    # get请求展示登录页面
     def get(self, request):
         return render(request, 'user/reg.html')
 
+    # post请求,获取参数进行验证
     def post(self, request):
         data=request.POST
-        form=UserForm(data)
+        form=RegModelForm(data)
         if form.is_valid():
             user=User()
             user.phone_num=form.cleaned_data.get('phone_num')
@@ -52,7 +64,6 @@ class RegisterView(View):
             return render(request,'user/reg.html',context=context)
 
 #设置新密码
-
 class NewPwdView(View):
 
     def get(self, request):
@@ -62,7 +73,6 @@ class NewPwdView(View):
         return HttpResponse('200')
 
 #忘记密码
-
 class ForPwdView(View):
 
     def get(self, request):
@@ -72,7 +82,7 @@ class ForPwdView(View):
         return HttpResponse('200')
 
 #绑定新手机号
-class BoundPhoneView(View):
+class BoundPhoneView(BaseView):
 
     def get(self, request):
         return render(request, 'user/boundphone.html')
@@ -81,8 +91,7 @@ class BoundPhoneView(View):
         return HttpResponse('200')
 
 #设置支付密码
-#@hash_password
-class PaymentView(View):
+class PaymentView(BaseView):
 
     def get(self, request):
         return render(request, 'user/payment.html')
@@ -91,7 +100,7 @@ class PaymentView(View):
         return HttpResponse('200')
 
 #地址管理
-class GiAddressView(View):
+class GiAddressView(BaseView):
 
     def get(self,request):
         return render(request,'user/gladdress.html')
@@ -99,7 +108,7 @@ class GiAddressView(View):
     def post(self,request):
         return HttpResponse('200')
 #编辑地址
-class EditAddressView(View):
+class EditAddressView(BaseView):
 
     def get(self,request):
         return render(request,'user/editaddress.html')
@@ -108,12 +117,13 @@ class EditAddressView(View):
         return HttpResponse('200')
 
 #删除地址
+@check_session
 def delete(request):
     return HttpResponse('200')
 
 
 #添加地址
-class AddressView(View):
+class AddressView(BaseView):
 
     def get(self,request):
         return render(request,'user/address.html')
@@ -123,7 +133,7 @@ class AddressView(View):
 
 
 #个人信息
-class InfoView(View):
+class InfoView(BaseView):
 
     def get(self,request):
         return render(request,'user/infor.html')
