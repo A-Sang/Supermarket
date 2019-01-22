@@ -17,13 +17,13 @@
             </div>-->
             <div style="height: 3rem;"></div>
             <input type="text" name="phone_num" id="mobile" placeholder="请输入用户名/手机号" class="login-name" value="{{ data.phone_num }}">
-            <p>{{ error.phone_num.0 }}</p>
+            <p class="am-text-danger am-text-middle">{{ form.errors.phone_num.0 }}</p>
             <input type="password" name="password" id="password" placeholder="请输入密码" class="login-password">
-            <p>{{ error.password }}</p>
+            <p class="am-text-danger am-text-middle">{{ form.errors.password.0 }}</p>
             <input type="submit" class="login-btn" value="我要登录">
             <div class="agree">
                 <a href="{% url 'user:注册' %}">免费注册</a>
-                <a href="forgetpassword.html" class="forget">忘记密码？</a>
+                <a href="{% url 'user:忘记密码' %}" class="forget">忘记密码？</a>
             </div>
             <div class="line"></div>
             <div class="line-text">第三方账号登录</div>

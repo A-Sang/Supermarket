@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from user.views import LoginView, RegisterView, NewPwdView, ForPwdView, BoundPhoneView, saftystep, PaymentView, member, \
-    GiAddressView, EditAddressView, AddressView, InfoView, delete
+    GiAddressView, EditAddressView, AddressView, InfoView, delete, SendMsm
 
 urlpatterns = [
     url('^login/$', LoginView.as_view(), name='登录'),
@@ -16,4 +16,5 @@ urlpatterns = [
     url('^info/$', InfoView.as_view(), name='个人信息'),
     url('^member/$', member, name='个人中心'),
     url('^del/$', delete, name='删除地址'),
+    url('^sendmsg/$', SendMsm.as_view(), name='发送验证码'),
 ]

@@ -1,74 +1,116 @@
 {% extends 'common/userpublic.html' %}
 {% load static %}
 
-        {% block head %}
-            <link href="{% static 'css/check.css' %}" rel="stylesheet" type="text/css" />
-        {% endblock %}
+{% block head %}
+    <link href="{% static 'css/check.css' %}" rel="stylesheet" type="text/css"/>
+{% endblock %}
 
 
-        {% block header %}
-           个人资料
-        {% endblock %}
+{% block header %}
+    个人资料
+{% endblock %}
 
-        {% block body %}
+{% block body %}
+    <form action="" method="post">
+        {% csrf_token %}
         <div style="height: 49px;"></div>
-	    <ul class="safty1">
-	    	<li>
-	    		<a href="">
-	    			<i style="margin-top: 25px;">头像</i>
-	    			<div class="infor-pic">
-	    				<img src="{% static 'images/infortx.png' %}" />
-	    			</div>
-	    		</a>
-	    	</li>
-	    	<li>
-	    		<a href="">
-	    			<i>昵称</i>
-	    			<input class="infor-tele" placeholder="默契"/>
-	    		</a>
-	    	</li>
-	    	<li>
-	    		<a href="">
-	    			<i>性别</i>
-	    			<i class="infor-tele">
-	    				<label class="am-radio-inline">
-				          <input type="radio" name="radio10" checked="checked" value="1" data-am-ucheck>男
-				        </label>
-				        <label class="am-radio-inline">
-				          <input type="radio" name="radio10" value="1" data-am-ucheck>女
-				        </label>
-	    			</i>
-	    		</a>
-	    	</li><li>
-	    		<a href="">
-	    			<i>生日</i>
-                    <input type="date" class="infor-tele" placeholder="出生日期"/>
-	    		</a>
-	    	</li>
-	    </ul>
-	    <div style="height: 10px; background: #efefef;"></div>
-	     <ul class="safty1">
-	    	<li>
-	    			<i>学校</i>
-	    			<input class="infor-tele" placeholder="就读于哪个学校"/>
-	    	</li>
-	    	<li>
-	    			<i>位置</i>
-	    			<input class="infor-tele" placeholder="详细地址"/>
-	    	</li>
-	    	<li>
-	    			<i>故乡</i>
-                    <input class="infor-tele" placeholder="来自哪里"/>
-	    	</li>
-	    	<li>
-	    			<i>手机</i>
-                    <input class="infor-tele" placeholder="13012345678"/>
-	    	</li>
-	    </ul>
-        {% endblock %}
+        <ul class="safty1">
+            <li>
+                <a href="">
+                    <i style="margin-top: 25px;">头像</i>
+                    <div class="infor-pic">
+                        <img src="{% static 'images/infortx.png' %}"/>
+                    </div>
+                </a>
+            </li>
+            <li>
 
-        {% block foot %}
-            <script src="{% static 'js/jquery.min.js' %}"></script>
-            <script src="{% static 'js/amazeui.min.js' %}"></script>
-        {% endblock %}
+                <i>昵称</i>
+                <input class="infor-tele" placeholder="默契" name="nickname"
+                       value="{% if data.nickname %}	{{ data.nickname }}{% endif %}"/>
+                <p>{{ error.nickname }}</p>
+            </li>
+            <li>
+                {% if data.gender == 1 %}
+                    <i>性别</i>
+                    <i class="infor-tele">
+                        <label class="am-radio-inline">
+                            <input type="radio" name="gender" value='1' checked="checked" data-am-ucheck>男
+                        </label>
+                        <label class="am-radio-inline">
+                            <input type="radio" name="gender" value='2' data-am-ucheck>女
+                        </label>
+                    </i>
+                {% elif data.gender == 2 %}
+                    <i>性别</i>
+                    <i class="infor-tele">
+                        <label class="am-radio-inline">
+                            <input type="radio" name="gender" value='1' data-am-ucheck>男
+                        </label>
+                        <label class="am-radio-inline">
+                            <input type="radio" name="gender" value='2' checked="checked" data-am-ucheck>女
+                        </label>
+                    </i>
+                {% endif %}
 
+            </li>
+            <li>
+
+                <i>生日</i>
+                <input type="date" class="infor-tele" placeholder="出生日期" name="birthday"
+                       value="{% if data.birthday %}{{ data.birthday|date:'Y-m-d' }}{% endif %}"/>
+
+            </li>
+        </ul>
+        <div style="height: 10px; background: #efefef;"></div>
+        <ul class="safty1">
+            <li>
+                <i>学校</i>
+                <input class="infor-tele" placeholder="就读于哪个学校" name="school"
+                       value="{% if data.school %}{{ data.school }}{% endif %}"/>
+                <p>{{ error.school }}</p>
+            </li>
+            <li>
+                <i>位置</i>
+                <input class="infor-tele" placeholder="详细地址" name="location"
+                       value="{% if data.location %}{{ data.location }}{% endif %}"/>
+                <p>{{ error.location }}</p>
+            </li>
+            <li>
+                <i>故乡</i>
+                <input class="infor-tele" placeholder="来自哪里" name="hometown"
+                       value="{% if data.hometown %}{{ data.hometown }}{% endif %}"/>
+                <p>{{ error.hometown }}</p>
+            </li>
+            <li>
+                <i>手机</i>
+                <input readonly class="infor-tele" id="phone" value="{{ user.phone_num }}"/>
+            </li>
+        </ul>
+        <input type="submit" class="login-btn" value="确认">
+    </form>
+{% endblock %}
+
+{% block foot %}
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/amazeui.min.js' %}"></script>
+{% endblock %}
+
+
+{% block foot_js %}
+    <script type="application/javascript">
+        var phone = $('#phone').val();
+        var newphone = "";
+        if (phone.length > 0) {
+            for (var i = 0; i < phone.length; i++) {
+                if (i < 3 || i >= phone.length - 4) {
+                    newphone += phone[i];
+                }
+                else {
+                    newphone += '*';
+                }
+                $('#phone').val(newphone)
+            }
+        }
+    </script>
+{% endblock %}
