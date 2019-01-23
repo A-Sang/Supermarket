@@ -28,6 +28,7 @@ class UserInfo(BaseModel):
     hometown = models.CharField(max_length=20, null=True, verbose_name='籍贯',blank=True)
     paypassword = models.CharField(max_length=64, null=True, verbose_name='支付密码',blank=True)
     user = models.OneToOneField(to='User',primary_key=True,verbose_name='ID',blank=True)
+    head = models.ImageField(upload_to='head/%Y%m/', default='/head/infortx.png', verbose_name='头像')
 
     class Meta:
         db_table = 'userinfo'

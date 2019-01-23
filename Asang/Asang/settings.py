@@ -65,6 +65,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -149,3 +150,7 @@ SESSION_CACHE_ALIAS = "default"
 # 添加第三方密匙
 ACCESS_KEY_ID = "LTAI2qSiJdWP87em"
 ACCESS_KEY_SECRET = "FzORQ587PgGBoOAdmxzCjaxQi8klUi"
+
+#添加文件保存设置
+MEDIA_URL = "/static/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, 'static/media')

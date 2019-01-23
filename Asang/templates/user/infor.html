@@ -11,20 +11,18 @@
 {% endblock %}
 
 {% block body %}
-    <form action="" method="post">
+    <form action="" method="post" enctype="multipart/form-data" >
         {% csrf_token %}
         <div style="height: 49px;"></div>
         <ul class="safty1">
             <li>
-                <a href="">
                     <i style="margin-top: 25px;">头像</i>
                     <div class="infor-pic">
-                        <img src="{% static 'images/infortx.png' %}"/>
+                        <img src="{{ MEDIA_URL }}{{ data.head }}"/>
                     </div>
-                </a>
+                <input type="file" name="head">
             </li>
             <li>
-
                 <i>昵称</i>
                 <input class="infor-tele" placeholder="默契" name="nickname"
                        value="{% if data.nickname %}	{{ data.nickname }}{% endif %}"/>

@@ -18,7 +18,9 @@ from user.models import User, UserInfo
 # 个人中心
 @check_session
 def member(request):
-    return render(request, 'user/member.html')
+    phone = request.session.get('phone_num')
+    user=UserInfo.objects.get(pk=request.session.get('id'))
+    return render(request, 'user/member.html',{'phone':phone,'user':user})
 
 
 # 安全设置
@@ -217,8 +219,10 @@ class InfoView(BaseView):
         id=request.session.get('id')
         data=request.POST
         form=InfoModelForm(data)
+        info = UserInfo.objects.get(pk=id)
+        info.head=request.FILES.get('head')
+        info.save()
         if form.is_valid():
-            info = UserInfo.objects.get(pk=id)
             info.nickname=form.cleaned_data.get('nickname')
             info.birthday=form.cleaned_data.get('birthday')
             info.gender=form.cleaned_data.get('gender')
