@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'user.apps.UserConfig',
     'goods.apps.GoodsConfig',
     'orders.apps.OrdersConfig',
-    'shopcart.apps.ShopcartConfig'
+    'shopcart.apps.ShopcartConfig',
+    'ckeditor',  # 添加ckeditor富文本编辑器
+    'ckeditor_uploader',  # 添加ckeditor富文本编辑器文件上传部件
 ]
 
 MIDDLEWARE = [
@@ -131,7 +133,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
-
+# 收集静态文件,上线前使用一把
+# STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # 添加redis服务器
 CACHES = {
     "default": {
@@ -151,6 +154,16 @@ SESSION_CACHE_ALIAS = "default"
 ACCESS_KEY_ID = "LTAI2qSiJdWP87em"
 ACCESS_KEY_SECRET = "FzORQ587PgGBoOAdmxzCjaxQi8klUi"
 
-#添加文件保存设置
+# 添加文件保存设置
 MEDIA_URL = "/static/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static/media')
+
+#设置富文本编辑器路径
+CKEDITOR_UPLOAD_PATH = "uploads/"
+
+# 编辑器样式配置
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+    },
+}

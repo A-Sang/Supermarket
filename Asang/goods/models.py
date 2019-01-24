@@ -1,3 +1,4 @@
+from ckeditor_uploader.fields import RichTextUploadingField
 from django.db import models
 
 # Create your models here.
@@ -31,7 +32,7 @@ class UnitModel(BaseModel):
 class GoodsSPUModel(BaseModel):
 
     spu_name=models.CharField(max_length=100,verbose_name='SPU名')
-    spu_detail=models.TextField(verbose_name='详情')
+    spu_detail=RichTextUploadingField(verbose_name='详情')
 
     def __str__(self):
         return self.spu_name
@@ -110,3 +111,11 @@ class ZoneModel(BaseModel):
     order=models.SmallIntegerField(default=0,verbose_name='排序')
     is_online=models.BooleanField(default=False,choices=((True,'上线'),(False,'下线')),verbose_name='是否上线')
     sku=models.ManyToManyField(to=GoodsSKUModel,verbose_name='SKU商品名')
+
+    def __str__(self):
+        return self.title
+
+
+    class Meta:
+        verbose_name="专区管理"
+        verbose_name_plural=verbose_name
