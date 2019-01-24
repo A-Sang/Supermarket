@@ -117,5 +117,6 @@ class ZoneModel(BaseModel):
 
 
     class Meta:
+        db_table='活动专区表'
         verbose_name="专区管理"
         verbose_name_plural=verbose_name
