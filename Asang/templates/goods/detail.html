@@ -10,11 +10,19 @@
     </script>
 
     <style>
-        .am-slider-default .am-control-nav {text-align: center;}
+        .am-slider-default .am-control-nav {
+            text-align: center;
+        }
 
-        .am-slider-default .am-control-nav li a.am-active {background: #cb2527;}
+        .am-slider-default .am-control-nav li a.am-active {
+            background: #cb2527;
+        }
 
-        .am-slider-default .am-control-nav li a {border: 0; width: 10px;height: 10px;}
+        .am-slider-default .am-control-nav li a {
+            border: 0;
+            width: 10px;
+            height: 10px;
+        }
     </style>
 {% endblock %}
 
@@ -37,20 +45,21 @@
     <!--图片轮换-->
     <div class="am-slider am-slider-default" data-am-flexslider id="demo-slider-0">
         <ul class="am-slides">
-            <li><img src="{{ MEDIA_URL }}{{sku.LOGO}}"/></li>
-            <li><img src="{% static 'images/pic.png' %}"/></li>
+            {% for img in sku.gallerymodel_set.all %} }
+                <li><img src="{{ MEDIA_URL }}{{ img.img_url }}"/></li>
+            {% endfor %}
         </ul>
     </div>
     <div class="detal-info" style="position: relative; width: 100%;">
-        <p>{{sku.spu}}{{ sku.sku_name }}</p>
-        <h2>商城价：<span>￥{{sku.price}}</span></h2>
+        <p>{{ sku.spu }}{{ sku.sku_name }}</p>
+        <h2>商城价：<span>￥{{ sku.price }}</span></h2>
         <div class="heart">
             <img src="{% static 'images/herat.png' %}" width="25" id="imgflag" onclick="changeImage()"/>
             <p>收藏</p>
         </div>
     </div>
     <div class="d-amount">
-        <h4>数量：{{ sku.stock }}</h4>
+        <h4>库存：{{ sku.stock }}{{ sku.unit.unit_name }}</h4>
         <div class="d-stock">
             <a class="decrease">-</a>
             <input id="num" readonly="" class="text_box" name="" type="text" value="1">
@@ -69,7 +78,7 @@
         <div class="am-tabs-bd">
             <div class="am-tab-panel am-fade am-in am-active detail " id="tab1">
                 {{ sku.spu.spu_detail|safe }}
-                <img src="{{MEDIA_URL}}{{ sku.LOGO }}"/>
+                <img src="{{ MEDIA_URL }}{{ sku.LOGO }}"/>
             </div>
             <div class="am-tab-panel am-fade detail " id="tab2">
                 <!--<div class="comment">
@@ -123,9 +132,13 @@
     <!--底部-->
     <div style=" height: 55px;"></div>
     <ul class="fix-shopping">
-        <li><a href="shopcart.html" class="join">加入购物车</a></li>
+        <li><a class="join" id="cart">加入购物车</a></li>
         <li><a href="tureorder.html" class="imm-buy">立即购买</a></li>
     </ul>
+{% endblock %}
+
+{% block foot %}
+
 {% endblock %}
 
 {% block foot_js %}
@@ -135,18 +148,58 @@
             $('.increase').click(function () {
                 var self = $(this);
                 var current_num = parseInt(self.siblings('input').val());
-                current_num += 1;
-                self.siblings('input').val(current_num);
-                update_item(self.siblings('input').data('item-id'));
-            })
+                //当数量超过库存提示库存不足
+                if ($('#num').val() < {{ sku.stock }}) {
+                    current_num += 1;
+                    self.siblings('input').val(current_num);
+                }
+                else {
+                    alert('库存不足')
+                }
+            });
+
             $('.decrease').click(function () {
                 var self = $(this);
                 var current_num = parseInt(self.siblings('input').val());
                 if (current_num > 1) {
                     current_num -= 1;
                     self.siblings('input').val(current_num);
-                    update_item(self.siblings('input').data('item-id'));
                 }
+            });
+
+
+            $('#cart').click(function () {
+                                //准备数据
+                var sku_id ={{ sku.pk }};
+                var count = $('#num').val();
+                var data = {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'count': count,
+                    'sku_id': sku_id
+                };
+                //发送ajax请求
+                $.ajax({
+                    type: 'post',
+                    url: '{% url "shopcart:增加" %}',
+                    data: data,
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.code == 0) {
+                            if (confirm('添加成功，是否去购物车结算')) {
+                                location.href ="{% url 'shopcart:购物车' %}"
+                            }
+                            else {
+                                location.href ="{% url 'goods:商品详情' sku.pk%}"
+                            }
+                        } else if(data.code==4){
+                            if(confirm('未登录，是否立即登录')){
+                                location.href="{% url 'user:登录' %}"
+                            }
+                        }else {
+                            alert(data.errmsg)
+                        }
+                    }
+                })
             })
         })
     </script>

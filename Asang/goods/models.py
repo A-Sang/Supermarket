@@ -56,7 +56,7 @@ class GoodsSKUModel(BaseModel):
     category=models.ForeignKey(to=CategoryModel,verbose_name='类别')
 
     def __str__(self):
-        return self.sku_name
+        return "{} {}".format(self.spu.spu_name,self.sku_name)
 
     class Meta:
         db_table='SKU商品表'
@@ -68,7 +68,7 @@ class GalleryModel(BaseModel):
     img_url=models.ImageField(verbose_name='商品相册',upload_to='goods_gallery/%Y/%m/%d')
     sku=models.ForeignKey(to=GoodsSKUModel,verbose_name='SKU商品名')
     def __str__(self):
-        return '商品相册:{}'.format(self.img_url.name)
+        return '商品相册:{}  {}--{}'.format(self.sku.spu.spu_name,self.sku.sku_name,self.img_url.name)
 
     class Meta:
         db_table='商品相册表'

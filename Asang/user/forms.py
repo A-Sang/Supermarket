@@ -3,7 +3,7 @@ from django.core.validators import RegexValidator
 from django_redis import get_redis_connection
 
 from db.base_form import BaseModelForm
-from user import hash_password
+from db.helper import hash_password
 from user.models import User, UserInfo
 
 

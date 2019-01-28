@@ -1,0 +1,4 @@
+{{object.sku_name}}
+{{object.introduction}}
+{{object.spu.spu_name}}
+{{object.spu.spu_detail}}

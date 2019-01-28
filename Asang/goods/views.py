@@ -5,6 +5,7 @@ from django.views import View
 
 
 # Create your views here.
+from db.helper import get_count
 from goods.models import BannerModel, ZoneModel, GoodsSKUModel, GoodsSPUModel, CategoryModel
 
 
@@ -61,10 +62,13 @@ class CateGoryView(View):
         order = int(order)
         #根据接收的参数索引,对应排序查询
         goods=goods.order_by(order_rule[order])
+        # 获取购物车总数量
+        count_cart = get_count(request)
         context={'categorys':categorys,
                  "goods":goods,
                  'id':id,
-                 'order':order}
+                 'order':order,
+                 'count_cart':count_cart}
         return render(request, 'goods/category.html',context=context)
 
     def post(self, request):

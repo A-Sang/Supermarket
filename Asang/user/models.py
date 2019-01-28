@@ -11,11 +11,13 @@ class User(BaseModel):
                                                                                                     message='请输入有效手机号码')])
     password = models.CharField(max_length=64, verbose_name='登录密码')
 
+    def __str__(self):
+        return self.phone_num
 
 
     class Meta:
-        db_table = 'user'
-        verbose_name_plural = '用户登录表'
+        db_table = '用户表'
+        verbose_name_plural = '用户账号管理'
 
 
 class UserInfo(BaseModel):
@@ -30,9 +32,12 @@ class UserInfo(BaseModel):
     user = models.OneToOneField(to='User',primary_key=True,verbose_name='ID',blank=True)
     head = models.ImageField(upload_to='head/%Y%m/', default='/head/infortx.png', verbose_name='头像')
 
+    def __str__(self):
+        return self.nickname
+
     class Meta:
-        db_table = 'userinfo'
-        verbose_name_plural = '用户信息表'
+        db_table = '用户信息表'
+        verbose_name_plural = '用户信息管理'
 
 
 class UserAddress(BaseModel):
@@ -44,9 +49,12 @@ class UserAddress(BaseModel):
     is_default = models.BooleanField(default=False, verbose_name='是否默认')
     userinfo = models.ForeignKey(to='UserInfo')
 
+    def __str__(self):
+        return self.name
+
     class Meta:
-        db_table = 'useraddress'
-        verbose_name_plural = '用户收货地址表'
+        db_table = '用户地址表'
+        verbose_name_plural = '用户地址管理'
 
 
 class UserBuy(models.Model):

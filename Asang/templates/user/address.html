@@ -1,44 +1,144 @@
 {% extends 'common/userpublic.html' %}
 {% load static %}
 
-        {% block head %}
-        <script src="{% static 'js/area.js' %}"></script>
-        {% endblock %}
+{% block head %}
+    <script src="{% static 'js/area.js' %}"></script>
+    <script src="{% static 'js/area.js' %}"></script>
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/common.js' %}"></script>
+    <script src="{% static 'js/Popt.js' %}"></script>
+    <script src="{% static 'js/cityJson.js' %}"></script>
+    <script src="{% static 'js/citySet.js' %}"></script>
+{% endblock %}
+
+{% block head_js %}
+    <style type="text/css">
+        ._citys {
+            width: 100%;
+            height: 100%;
+            display: inline-block;
+            position: relative;
+        }
+
+        ._citys span {
+            color: #56b4f8;
+            height: 15px;
+            width: 15px;
+            line-height: 15px;
+            text-align: center;
+            border-radius: 3px;
+            position: absolute;
+            right: 1em;
+            top: 10px;
+            border: 1px solid #56b4f8;
+            cursor: pointer;
+        }
+
+        ._citys0 {
+            width: 100%;
+            height: 34px;
+            display: inline-block;
+            border-bottom: 2px solid #56b4f8;
+            padding: 0;
+            margin: 0;
+        }
+
+        ._citys0 li {
+            float: left;
+            height: 34px;
+            line-height: 34px;
+            overflow: hidden;
+            font-size: 15px;
+            color: #888;
+            width: 80px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .citySel {
+            background-color: #56b4f8;
+            color: #fff !important;
+        }
+
+        ._citys1 {
+            width: 100%;
+            height: 80%;
+            display: inline-block;
+            padding: 10px 0;
+            overflow: auto;
+        }
+
+        ._citys1 a {
+            height: 35px;
+            display: block;
+            color: #666;
+            padding-left: 6px;
+            margin-top: 3px;
+            line-height: 35px;
+            cursor: pointer;
+            font-size: 13px;
+            overflow: hidden;
+        }
+
+        ._citys1 a:hover {
+            color: #fff;
+            background-color: #56b4f8;
+        }
+
+        .ui-content {
+            border: 1px solid #EDEDED;
+        }
+
+        li {
+            list-style-type: none;
+        }
+    </style>
+{% endblock %}
 
 
-        {% block header %}
-            新增收货地址
-        {% endblock %}
+{% block header %}
+    新增收货地址
+{% endblock %}
 
-        {% block body %}
-        <form action="" method="post">
+{% block body %}
+    <form action="" method="post">
         {% csrf_token %}
-            <div style="height: 60px;"></div>
-            <ul class="address">
-                <li>
-                    <input type="text" class="add-input" placeholder="省/市" />
-{#                    <i class="am-icon-angle-right" style="float: right; margin-top: 5px;"></i>#}
-                </li>
-                <li>
-                    <input type="text" class="add-input"  placeholder="区/县" />
-{#                    <i class="am-icon-angle-right" style="float: right; margin-top: 5px;"></i>#}
-                </li>
-                <li><input type="text" class="add-input" placeholder="详细地址" /></li>
-                <li><input type="text" class="add-input" placeholder="收货人" /></li>
-                <li><input type="text" class="add-input" placeholder="手机号" /></li>
-            </ul>
-            <div class="moren">
-                <label class="am-checkbox am-warning">
-                     <input type="checkbox" checked="checked" value="" data-am-ucheck checked>设为默认
-                </label>
-            </div>
-            <input type="button" class="login-btn" value="确认提交">
-        </form>
-        {% endblock %}
+        <div style="height: 60px;"></div>
+        <ul class="address">
+            <li><span id="city" style="color:#d7d7d7;padding-left:5px;">所在地区</span></li>
+            <li><input type="text" name="brief" class="add-input" placeholder="详细地址" value=""/></li>
+            <li><input type="text" name="name" class="add-input" placeholder="收货人" value=""/></li>
+            <li><input type="text" name="phone_num" class="add-input" placeholder="手机号" value=""/></li>
+        </ul>
+        <div class="moren">
+            <label class="am-checkbox am-warning">
+                <input name="is_default" type="checkbox" checked="checked" value="" data-am-ucheck>设为默认
+            </label>
+        </div>
+        <input type="submit" class="login-btn" value="确认提交">
+    </form>
+{% endblock %}
 
-        {% block foot %}
-            <script src="{% static 'js/jquery.min.js' %}"></script>
-            <script src="{% static 'js/amazeui.min.js' %}"></script>
-        {% endblock %}
+{% block foot %}
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/amazeui.min.js' %}"></script>
+{% endblock %}
 
+{% block foot_js %}
+    <script type="text/javascript">
+        $("#city").click(function (e) {
+            SelCity(this, e);
+            console.log(this);
+        });
+        $(function () {
+            var status = $("input[type='checkbox']").prop('checked');
+            if (status == true) {
+                $(this).val(0)
+            } else {
+                $(this).val(1)
+            }
+            console.log($(this).val())
+        });
 
+    </script>
+{% endblock %}

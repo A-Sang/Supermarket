@@ -1,7 +1,7 @@
 from django.utils.decorators import method_decorator
 from django.views import View
 
-from user import check_session
+from db.helper import check_session
 
 
 class BaseView(View):

@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'haystack',  # 全文检索框架
+    # 子应用配置
     'user.apps.UserConfig',
     'goods.apps.GoodsConfig',
     'orders.apps.OrdersConfig',
@@ -158,7 +160,7 @@ ACCESS_KEY_SECRET = "FzORQ587PgGBoOAdmxzCjaxQi8klUi"
 MEDIA_URL = "/static/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static/media')
 
-#设置富文本编辑器路径
+# 设置富文本编辑器路径
 CKEDITOR_UPLOAD_PATH = "uploads/"
 
 # 编辑器样式配置
@@ -167,3 +169,17 @@ CKEDITOR_CONFIGS = {
         'toolbar': 'full',
     },
 }
+
+# 全文检索框架的配置
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        # 配置搜索引擎
+        # 'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        # 中文分词 使用jieba的whoosh引擎
+        'ENGINE': 'until.whoosh_cn_backend.WhooshEngine',
+        # 配置索引文件目录
+        'PATH': os.path.join(BASE_DIR, 'whoosh_index'),
+    },
+}
+# 当添加、修改、删除数据时，自动生成索引
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'

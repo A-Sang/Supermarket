@@ -53,24 +53,12 @@
 {% endblock %}
 
 {% block foot %}
-<!--签到-->
-<div class="qd-box">
-	<div class="popup-title">
-			<span>签到成功</span>
-			<div class="popup-close"><i class="iconfont">&#xe602</i></div>
-	</div>
-	<div class="dq-text">
-		<img src="{% static 'images/qiandao.png' %}" width="40" />&nbsp; 您已连续签到3天
-	</div>
-</div>
-<!--签到-->
-
- <!--底部-->
+  <!--底部-->
  <div style="height: 55px;"></div>
  <div data-am-widget="navbar" class="am-navbar am-cf am-navbar-default sq-foot am-no-layout" id="">
       <ul class="am-navbar-nav am-cf am-avg-sm-5">
           <li>
-            <a href="{% url 'goods:超市主页' %}" class="curr">
+            <a href="{% url 'goods:超市主页' %}" class="">
                 <span class="am-icon-home"></span>
                 <span class="am-navbar-label">首页</span>
             </a>
@@ -82,20 +70,20 @@
             </a>
           </li>
           <li>
-            <a href="shopcart.html" class="">
+            <a href="{% url 'shopcart:购物车' %}" class="">
                 <span class="am-icon-shopping-cart"></span>
                 <span class="am-navbar-label">购物车</span>
             </a>
           </li>
           <li>
-            <a href="allorder.html" class="">
+            <a href="{% url 'orders:订单' %}" class="">
                 <span class="am-icon-file-text"></span>
                 <span class="am-navbar-label">订单</span>
             </a>
           </li>
 
           <li>
-            <a href="{% url 'user:个人中心' %}" class="">
+            <a href="{% url 'user:个人中心' %}" class="curr">
                 <span class="am-icon-user"></span>
                 <span class="am-navbar-label">我的</span>
             </a>
