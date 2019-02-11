@@ -18,6 +18,7 @@
             height: 100%;
             display: inline-block;
             position: relative;
+            background-color: whitesmoke;
         }
 
         ._citys span {
@@ -92,6 +93,7 @@
         li {
             list-style-type: none;
         }
+
     </style>
 {% endblock %}
 
@@ -104,15 +106,22 @@
     <form action="" method="post">
         {% csrf_token %}
         <div style="height: 60px;"></div>
-        <ul class="address">
-            <li><span id="city" style="color:#d7d7d7;padding-left:5px;">所在地区</span></li>
-            <li><input type="text" name="brief" class="add-input" placeholder="详细地址" value=""/></li>
-            <li><input type="text" name="name" class="add-input" placeholder="收货人" value=""/></li>
-            <li><input type="text" name="phone_num" class="add-input" placeholder="手机号" value=""/></li>
-        </ul>
+            <ul class="address" data-role="listview">
+                <li>
+                    <span id="city" style="padding-left:5px; width: 245px">所在地区</span>
+                    <i class="am-icon-angle-right" style="float: right; margin-top: 5px;"></i>
+                </li>
+                 <p class="am-text-danger am-text-middle">{{ form.errors.hcity.0 }}</p>
+                <li><input type="text" name="brief" class="add-input" placeholder="详细地址" value=""/></li>
+                <p class="am-text-danger am-text-middle">{{ form.errors.brief.0 }}</p>
+                <li><input type="text" name="name" class="add-input" placeholder="收货人" value=""/></li>
+               <p class="am-text-danger am-text-middle">{{ form.errors.name.0 }}</p>
+                <li><input type="text" name="phone_num" class="add-input" placeholder="手机号" value=""/></li>
+                <p class="am-text-danger am-text-middle">{{ form.errors.phone_num.0 }}</p>
+            </ul>
         <div class="moren">
             <label class="am-checkbox am-warning">
-                <input name="is_default" type="checkbox" checked="checked" value="" data-am-ucheck>设为默认
+                <input name="is_default" type="checkbox" id="checkbox" checked="checked" value="True" data-am-ucheck>设为默认
             </label>
         </div>
         <input type="submit" class="login-btn" value="确认提交">
@@ -130,15 +139,5 @@
             SelCity(this, e);
             console.log(this);
         });
-        $(function () {
-            var status = $("input[type='checkbox']").prop('checked');
-            if (status == true) {
-                $(this).val(0)
-            } else {
-                $(this).val(1)
-            }
-            console.log($(this).val())
-        });
-
     </script>
 {% endblock %}

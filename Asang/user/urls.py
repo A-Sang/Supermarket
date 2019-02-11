@@ -11,10 +11,10 @@ urlpatterns = [
     url('^safty/$', saftystep, name='安全设置'),
     url('^payment/$', PaymentView.as_view(), name='支付密码'),
     url('^giaddress/$', GiAddressView.as_view(), name='收货地址'),
-    url('^editaddress/$', EditAddressView.as_view(), name='编辑地址'),
+    url('^editaddress/(?P<id>\d+)$', EditAddressView.as_view(), name='编辑地址'),
     url('^address/$', AddressView.as_view(), name='添加地址'),
     url('^info/$', InfoView.as_view(), name='个人信息'),
     url('^member/$', member, name='个人中心'),
-    url('^del/$', delete, name='删除地址'),
+    url('^del/(?P<id>\d+)$', delete, name='删除地址'),
     url('^sendmsg/$', SendMsm.as_view(), name='发送验证码'),
 ]

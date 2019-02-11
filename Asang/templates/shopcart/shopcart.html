@@ -1,27 +1,13 @@
 {% extends 'common/goodspublic.html' %}
 {% load static %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>超市</title>
-    <meta name="description" content="">
-    <meta name="keywords" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <meta name="renderer" content="webkit">
-    <meta http-equiv="Cache-Control" content="no-siteapp"/>
-    <link rel="icon" type="image/png" href="/theme/default/images/favicon.png">
-    <link href="css/amazeui.min.css" rel="stylesheet" type="text/css"/>
-    <link href="css/style.css" rel="stylesheet" type="text/css"/>
-    {% block title %}购物车{% endblock %}
-    {% block head %}
-        <script src="{% static 'js/jquery-1.10.2.min.js' %}"></script>
-    {% endblock %}
 
-</head>
-<body>
+{% block title %}购物车{% endblock %}
+{% block head %}
+    <script src="{% static 'js/jquery-1.10.2.min.js' %}"></script>
+{% endblock %}
+
+
 {% block header %}
     <header data-am-widget="header" class="am-header am-header-default sq-head ">
         <div class="am-header-left am-header-nav">
@@ -36,23 +22,24 @@
 {% endblock %}
 
 {% block content %}
+    <form method="get" action="{%url 'orders:确认订单'%}">
     <div style="height: 49px;"></div>
     <ul class="shopcart-list">
         {% for sku,count in goods.items %}
             <li>
                 <label class="am-checkbox am-warning">
-                    <input id="goods_sku" type="checkbox" value="" data-am-ucheck>
+                    <input name="sku_ids" type="checkbox" checked="checked" value="{{ sku.pk }}" data-am-ucheck checked>
                 </label>
                 <a href="{% url 'goods:商品详情' sku.pk %}"><img src="{{ MEDIA_URL }}{{ sku.LOGO }}" class="shop-pic"/></a>
                 <div class="shop-list-mid">
                     <div class="tit"><a href="{% url 'goods:商品详情' sku.pk %}">
                         {{ sku.spu.spu_name }}{{ sku.sku_name }}</a></div>
-                    <i class="shop-list-price">￥</i><b id="price" class="shop-list-price">{{ sku.price }}</b>
+                    <b id="price" class="shop-list-price">￥<i>{{ sku.price }}</i></b>
                 </div>
                 <div class="list-cart1">
                     <div class="d-stock">
                         <a class="decrease">-</a>
-                        <input sku_id="{{ sku.pk }}" readonly="" class="text_box" name="count" type="text"
+                        <input sku_id="{{ sku.pk }}" readonly="" class="text_box"  type="text"
                                value="{{ count }}">
                         <a class="increase">+</a>
                     </div>
@@ -72,15 +59,16 @@
     <div class="shop-fix">
 
         <label class="am-checkbox am-warning">
-            <input id="check_all" type="checkbox" value="" data-am-ucheck>
+            <input id="check_all" checked="checked" type="checkbox" value="" data-am-ucheck checked>
         </label>
         <a class="del">全选</a>
-        <a href="tureorder.html" class="js-btn">去结算</a>
+        <input type="button" class="js-btn" value="去结算">
         <div class="js-text">
-            <P>合计：<b id="total_price">￥0.00</b></P>
+            <P>合计：<b>￥<i id="total_price"></i></b></P>
             <p class="js-car">免费配送</p>
         </div>
     </div>
+    </form>
 {% endblock %}
 
 
@@ -104,12 +92,12 @@
                     data: data,
                     dataType: 'json',
                     success: function (data) {
-                        console.debug(data)
+                        console.debug(data);
                         if (data.code == 0) {
                             //验证成功
                             current_num += 1;
                             self.siblings('input').val(current_num);
-                            $('#price').text('￥' + data.data.total_price);
+                            totalPrice();
                         }
                         else if (data.code == 4) {
                             //未登录
@@ -143,7 +131,7 @@
                             if (current_num > 0) {
                                 current_num -= 1;
                                 self.siblings('input').val(current_num);
-                                $('#price').text('￥' + data.data.total_price);
+                                totalPrice();
                                 if (current_num <= 0) {
                                     $.ajax({
                                         type: 'post',
@@ -165,40 +153,56 @@
                         }
                     }
                 });
-
             });
+
+            //计算只有没选中的商品总价格
+            function totalPrice() {
+                var checkboxes = $(".shopcart-list").find(':checked');
+                {#console.debug(checkboxes);#}
+                var total_price = 0;
+                $.each(checkboxes, function (i, e) {
+                    //e为被选中的复选框
+                    var li = $(e).closest("li");
+                    //console.debug(li)
+                    var price = $(li).find('.shop-list-price i').text();
+                    {#console.debug(price);#}
+                    var count = $(li).find('.text_box').val();
+                    {#console.debug(count);#}
+                    total_price += price * count;
+                    {#console.debug(total_price);#}
+
+                });
+                //toFixed保留小数位2位
+                $('#total_price').text(total_price.toFixed(2))
+            }
+
+            totalPrice();
+
+            //全选框
             $('#check_all').on('change', function () {
                 var status = $(this).prop('checked');
-                $("input[type='checkbox']").prop("checked", status);
-                totalPrice()
+                $(".shopcart-list").find(':checkbox').prop("checked", status);
+                totalPrice();
             });
 
-            $("input[type='checkbox']").each(function (i) {
-                if ($(this).prop('checked', true)) {
+            //复选框和全选框状态
+            $(".shopcart-list").find(':checkbox').on('change', function () {
+                totalPrice();
+                if ($(".shopcart-list").find(':checkbox').length == $(".shopcart-list").find(':checked').length) {
                     $('#check_all').prop('checked', true)
                 }
                 else {
                     $('#check_all').prop('checked', false)
                 }
             });
-
-            //计算只有没选中的商品总价格
-            function totalPrice() {
-                var checkboxes = $("input[type='checkbox']").find('checked');
-                var total_price = 0;
-                $(checkboxes).each(function (i) {
-                    //e为被选中的复选框
-                    var li = $(this).parents("li");
-                    //console.debug(li)
-                    var price = li.find('#price').text();
-                    var count = li.find('.text_box').val();
-                    total_price += price * count;
-                    $('#total_price').text('￥')
-                })
-
-            }
-
-            totalPrice()
+            //判断提交购物车
+            $('.js-btn').on('click',function () {
+                if($(".shopcart-list").find(':checked').length > 0){
+                    $('form').submit();
+                }else {
+                    alert('请选择要购买的商品')
+                }
+            })
         });
     </script>
     <script src="{% static 'js/jquery.min.js' %}"></script>

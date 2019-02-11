@@ -1,5 +1,3 @@
-from django.shortcuts import render, redirect
-
 # Create your views here.
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -22,21 +20,21 @@ class CartView(BaseView):
         cart_key = f"cart_{user_id}"
         # 操作数据库
         r = get_redis_connection()
-        #字典推导式遍历数据，返回sku对象和数量
+        # 字典推导式遍历数据，返回sku对象和数量
         goods = {GoodsSKUModel.objects.get(pk=int(pk)): int(counts) for pk, counts in r.hgetall(cart_key).items()}
-        #推导式获取各个商品总价价格，返回列表
-        price_list=[sku.price*count for sku,count in goods.items()]
+        # 推导式获取各个商品总价价格，返回列表
+        # price_list=[sku.price*count for sku,count in goods.items()]
         # for sku in goods.keys():
         #     price_list.append(sku.price)
-        #计算总价格
-        total_price=0
-        for price in price_list:
-            total_price += price
+        # 计算总价格
+        # total_price=0
+        # for price in price_list:
+        #     total_price += price
         context = {
             'goods': goods,
-            'total_price':total_price
+
         }
-        return render(request, 'shopcart/shopcart.html',context=context)
+        return render(request, 'shopcart/shopcart.html', context=context)
 
     def post(self, request):
         # 接收参数
@@ -49,18 +47,21 @@ class CartView(BaseView):
             count = int(count)
         except:
             return JsonResponse(json_msg(1, '参数错误'))
-        # 判断商品是否存在（下架）
-        try:
-            sku = GoodsSKUModel.objects.get(pk=sku_id, is_del=False)
-        except GoodsSKUModel.DoesNotExist:
-            return JsonResponse(json_msg(2, '该商品已下架'))
-        # 判断商品库存是否充足
-        if sku.stock < count:
-            return JsonResponse(json_msg(3, '商品库存不足'))
         # 参数正确，操作数据库
         r = get_redis_connection()
         # 设置redis的key
         cart_key = f'cart_{user_id}'
+        # 判断商品是否存在（下架）
+        try:
+            sku = GoodsSKUModel.objects.get(pk=sku_id, is_del=False, is_sale=True)
+        except GoodsSKUModel.DoesNotExist:
+            # 删除购物车信息
+            r.hdel(cart_key, sku_id)
+            return JsonResponse(json_msg(2, '该商品已下架'))
+        # 判断商品库存是否充足
+        if sku.stock < count:
+            return JsonResponse(json_msg(3, '商品库存不足'))
+
         # 判断购物里的数量和现添加的数量是否大于库存
         old_count = r.hget(cart_key, sku_id)
         if old_count is None:
@@ -117,10 +118,10 @@ def add_cart(request):
     r.hincrby(cart_key, sku_id, count)
     # 获取购物车总数量
     count_cart = get_count(request)
-    #获取总金额
-    total_price=get_price(request)
-    data={'count_cart':count_cart,
-          'total_price':total_price}
+    # 获取总金额
+    total_price = get_price(request)
+    data = {'count_cart': count_cart,
+            'total_price': total_price}
     return JsonResponse(json_msg(0, '添加成功', data))
 
 
@@ -150,6 +151,7 @@ def minus_cart(request):
     # 合成响应返回
     return JsonResponse(json_msg(0, '减少成功', data))
 
+
 @check_session
 def del_cart(request):
     # 接收参数
@@ -166,6 +168,6 @@ def del_cart(request):
     r = get_redis_connection()
     r.hdel(cart_key, sku_id)
     goods = {GoodsSKUModel.objects.get(pk=int(pk)): int(counts) for pk, counts in r.hgetall(cart_key).items()}
-    data={'goods':goods}
+    data = {'goods': goods}
     # 合成响应返回
-    return JsonResponse(json_msg(0,'删除成功'))
+    return JsonResponse(json_msg(0, '删除成功'))

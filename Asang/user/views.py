@@ -7,9 +7,10 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django_redis import get_redis_connection
 from db.base_view import BaseView
-from db.helper import hash_password, set_session, check_session, send_sms
-from user.forms import RegModelForm, LoginModelForm, NewpwdForm, GetPasswordForm, PhoneForm, InfoModelForm
-from user.models import User, UserInfo
+from db.helper import hash_password, set_session, check_session, send_sms, json_msg
+from user.forms import RegModelForm, LoginModelForm, NewpwdForm, GetPasswordForm, PhoneForm, InfoModelForm, \
+    AddressModelForm
+from user.models import User, UserInfo, UserAddress
 
 
 # Create your views here.
@@ -178,26 +179,66 @@ class PaymentView(BaseView):
 class GiAddressView(BaseView):
 
     def get(self, request):
-        return render(request, 'user/gladdress.html')
+        user_id=request.session.get('id')
+        users=UserInfo.objects.get(pk=user_id)
+        all_address=users.useraddress_set.filter(is_del=False).order_by('-is_default','-pk')
+        context={'all_address':all_address}
+        return render(request, 'user/gladdress.html',context=context)
 
     def post(self, request):
-        return HttpResponse('200')
+        pk=request.POST.get('pk')
+        #获取用户id
+        userinfo_id=UserAddress.objects.get(pk=pk).userinfo.pk
+        #把其他字段默认全部改为False
+        UserAddress.objects.filter(is_del=False,userinfo_id=userinfo_id).update(is_default=False)
+        #更改选中的字段默认变为True,返回更改信息条数
+        rs=UserAddress.objects.filter(pk=pk).update(is_default=True)
+        if rs:
+            #成功
+            return JsonResponse(json_msg(0, '更改成功'))
+        else:
+            #失败
+            return JsonResponse(json_msg(1,'更改失败'))
 
 
 # 编辑地址
 class EditAddressView(BaseView):
 
-    def get(self, request):
-        return render(request, 'user/editaddress.html')
+    def get(self, request,id):
+        #操作数据库
+        data=UserAddress.objects.get(pk=id)
+        #合成响应返回
+        context={'data':data}
+        return render(request, 'user/editaddress.html',context=context)
 
-    def post(self, request):
-        return HttpResponse('200')
-
+    def post(self, request,id):
+        #操作数据库
+        data=request.POST.dict()
+        user_id = request.session.get('id')
+        #将用户对象保存到外键字段中
+        data['userinfo']=UserInfo.objects.get(pk=user_id)
+        if 'hcity' in data:
+            data['hcity']=data['hcity']
+        else:
+            address=UserAddress.objects.get(pk=id)
+            data['hcity']=address.hcity
+            data['hproper']=address.hproper
+            data['harea']=address.harea
+        form = AddressModelForm(data)
+        #判断数据合法性
+        if form.is_valid():
+            #合法就保存，跳转到地址列表页
+            form.save()
+            return redirect('user:收货地址')
+        else:
+            #不合法，合成响应返回错误信息
+            return render(request,'user/editaddress.html',{'form':form})
 
 # 删除地址
 @check_session
-def delete(request):
-    return HttpResponse('200')
+def delete(request,id):
+    UserAddress.objects.filter(pk=id).update(is_del=True)
+    return redirect('user:收货地址')
 
 
 # 添加地址
@@ -207,9 +248,21 @@ class AddressView(BaseView):
         return render(request, 'user/address.html')
 
     def post(self, request):
-        data=request.POST
-
-        return HttpResponse('200')
+        #得到参数
+        user_id=request.session.get('id')
+        #将得到的不可修改字典强转为可以修改的字典
+        data=request.POST.dict()
+        data['userinfo']=user_id
+        form=AddressModelForm(data)
+        if form.is_valid():
+            #添加一个对象到form的userinfo字段上，进行保存
+            form.instance.userinfo=UserInfo.objects.get(pk=user_id)
+            form.save()
+            #跳转到地址列表页
+            return redirect('user:收货地址')
+        else:
+            # 不合法，合成响应返回错误信息
+            return render(request,'user/address.html',{'form':form})
 
 
 # 个人信息

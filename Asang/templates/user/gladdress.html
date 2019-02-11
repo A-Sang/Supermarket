@@ -1,38 +1,87 @@
 {% extends 'common/userpublic.html' %}
 {% load static %}
 
-        {% block header %}
-          管理收货地址
-        {% endblock %}
+{% block header %}
+    管理收货地址
+{% endblock %}
 
-        {% block headerother %}
-           <div class="am-header-right am-header-nav">
-                    <a href="{% url 'user:添加地址' %}" class="">
-                        <i class="am-icon-plus"></i>
-                    </a>
-            </div>
-        {% endblock %}
+{% block headerother %}
+    <div class="am-header-right am-header-nav ">
+        <a href="{% url 'user:添加地址' %}" class="add">
+            <i class="am-icon-plus"></i>
+        </a>
+    </div>
+{% endblock %}
 
-        {% block body %}
-            <div style="height: 49px;"></div>
-	    <ul class="address-list">
-	    	<li class="curr">
-	    		<p>收货人：徐女士&nbsp;&nbsp;182********</p>
-	    		<p class="order-add1">收货地址：江西省南昌市 青云谱区解放西路258号江西省南昌市 青云谱区解放西路258号</p>
-	    	    <hr />
-	    	    <div class="address-cz">
-	    	    	<label class="am-radio am-warning">
-                       <input type="radio" name="radio3" value="" data-am-ucheck checked> 设为默认
+{% block body %}
+    <div style="height: 49px;"></div>
+    <ul class="address-list">
+        {% for user in all_address %}
+            <li {% if user.is_default %}class="curr"{% endif %} id ="curr">
+                <p>收货人：{{ user.name }}&nbsp;&nbsp;{{ user.phone_num }}</p>
+                <p class="order-add1">
+                    收货地址：{{ user.hcity }}{{ user.hproper }}{{ user.harea }}&nbsp;&nbsp;{{ user.brief }}</p>
+                <hr/>
+                <div class="address-cz">
+                    <label class="am-radio am-warning">
+                        <input address="{{ user.pk }}" type="radio" name="radio3" class="radio"
+                               value="{{ user.is_default }}" data-am-ucheck checked> 设为默认
                     </label>
-                    <a href="{% url 'user:编辑地址' %}"><img src="{% static 'images/bj.png' %}" width="18" />&nbsp;编辑</a>
-                    <a href="{% url 'user:删除地址' %}">删除</a>
-	    	    </div>
-	    	</li>
-	    </ul>
-        {% endblock %}
+                    <a href="{% url 'user:编辑地址'  user.pk   %}"><img src="{% static 'images/bj.png' %}" width="18"/>&nbsp;编辑</a>
+                    <a href="{% url 'user:删除地址' user.pk %}">删除</a>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}
 
-        {% block foot %}
-            <script src="{% static 'js/jquery.min.js'%}"></script>
-            <script src="{% static 'js/amazeui.min.js' %}"></script>
-        {% endblock %}
+{% block foot %}
+    <script src="{% static 'js/jquery.min.js' %}"></script>
+    <script src="{% static 'js/amazeui.min.js' %}"></script>
+{% endblock %}
 
+{% block foot_js %}
+    <script type="application/javascript">
+        //使默认的radio为选中状态
+        $(function () {
+            $.each($(':radio'), function (i, e) {
+                if ($(e).val() == "True") {
+                    $(e).prop('checked', true)
+                } else {
+                    $(e).prop('checked', false)
+                }
+            });
+
+            $('.radio').on('click', function () {
+                //绑定点击事件，更改默认选项
+                var self = $(this);
+                {#console.debug(self)#}
+                var pk = self.attr('address');
+                {#console.debug(pk)#}
+                var data = {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}',
+                    'pk': pk
+                };
+                //发送ajax请求
+                $.ajax({
+                    type: 'post',
+                    url: '{% url "user:收货地址" %}',
+                    data: data,
+                    dataType: 'json',
+                    success: function () {
+                        if (data.code == 0) {
+                            $('.radio').prop('checked', true)
+                        }
+                    }
+                })
+            });
+            //如果显示大于6条就不能再添加
+            $('.add').on('click', function () {
+                if ($('li').length >= 6) {
+                    alert('最多只能添加6个收货地址');
+                    $('.add').attr('href', '')
+                }
+            })
+        });
+    </script>
+{% endblock %}

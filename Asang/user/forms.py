@@ -4,7 +4,7 @@ from django_redis import get_redis_connection
 
 from db.base_form import BaseModelForm
 from db.helper import hash_password
-from user.models import User, UserInfo
+from user.models import User, UserInfo, UserAddress
 
 
 # 注册form验证
@@ -47,17 +47,17 @@ class RegModelForm(forms.ModelForm):
         if password and repassword and password != repassword:
             raise forms.ValidationError({'repassword': '两次密码输入不一致'})
         try:
-            phone=self.cleaned_data.get('phone_num')
-            captcha=self.cleaned_data.get('captcha')
-            r=get_redis_connection()
-            random_code=r.get(phone)
-            random_code=random_code.decode('utf-8')
+            phone = self.cleaned_data.get('phone_num')
+            captcha = self.cleaned_data.get('captcha')
+            r = get_redis_connection()
+            random_code = r.get(phone)
+            random_code = random_code.decode('utf-8')
             if random_code is None:
-                raise forms.ValidationError({'captcha':'验证码失效,请重新获取验证码'})
-            elif captcha and random_code !=captcha:
-                raise forms.ValidationError({'captcha':'验证码输入错误!'})
+                raise forms.ValidationError({'captcha': '验证码失效,请重新获取验证码'})
+            elif captcha and random_code != captcha:
+                raise forms.ValidationError({'captcha': '验证码输入错误!'})
         except:
-            raise forms.ValidationError({'captcha':'验证码输入有误!'})
+            raise forms.ValidationError({'captcha': '验证码输入有误!'})
         return self.cleaned_data
 
 
@@ -87,37 +87,41 @@ class LoginModelForm(forms.ModelForm):
             self.cleaned_data['user'] = user
             return self.cleaned_data
 
-#修改密码验证
-class NewpwdForm(forms.Form):
-    password=forms.CharField(error_messages={'require':'密码未填写'},validators=[RegexValidator(r'\d{8,12}',message='输入8-12位密码')])
-    new_password=forms.CharField(error_messages={'require':'新密码未填写'},validators=[RegexValidator(r'\d{8,12}',message='输入8-12位密码')])
-    repassword=forms.CharField(error_messages={'require':'密码未填写'},validators=[RegexValidator(r'\d{8,12}',message='输入8-12位密码')])
 
-    def check_password(self,request):
-        id=request.session.get('id')
-        password=hash_password(self.cleaned_data.get('password'))
-        result=User.objects.filter(pk=id,password=password).exists()
+# 修改密码验证
+class NewpwdForm(forms.Form):
+    password = forms.CharField(error_messages={'require': '密码未填写'},
+                               validators=[RegexValidator(r'\d{8,12}', message='输入8-12位密码')])
+    new_password = forms.CharField(error_messages={'require': '新密码未填写'},
+                                   validators=[RegexValidator(r'\d{8,12}', message='输入8-12位密码')])
+    repassword = forms.CharField(error_messages={'require': '密码未填写'},
+                                 validators=[RegexValidator(r'\d{8,12}', message='输入8-12位密码')])
+
+    def check_password(self, request):
+        id = request.session.get('id')
+        password = hash_password(self.cleaned_data.get('password'))
+        result = User.objects.filter(pk=id, password=password).exists()
         if result:
             return True
         else:
-            self.add_error('password','密码输入错误')
+            self.add_error('password', '密码输入错误')
             return False
 
-
-
     def clean(self):
-        new_password=self.cleaned_data.get('new_password')
-        repassword=self.cleaned_data.get('repassword')
+        new_password = self.cleaned_data.get('new_password')
+        repassword = self.cleaned_data.get('repassword')
         if new_password and repassword and new_password != repassword:
-            raise forms.ValidationError({'repassword':'两次密码输入不一致'})
+            raise forms.ValidationError({'repassword': '两次密码输入不一致'})
         else:
-            self.add_error('password','密码输入错误')
+            self.add_error('password', '密码输入错误')
             return
 
-#忘记密码验证
+
+# 忘记密码验证
 class GetPasswordForm(RegModelForm):
     checkbox = None
-    #基础注册form表单,重写手机号验证方法
+
+    # 基础注册form表单,重写手机号验证方法
     def clean_phone_num(self):
         phone_num = self.cleaned_data.get('phone_num')
         result = User.objects.filter(phone_num=phone_num).exists()
@@ -127,7 +131,7 @@ class GetPasswordForm(RegModelForm):
             raise forms.ValidationError('手机未注册,请注册')
 
 
-#更换手机号验证
+# 更换手机号验证
 class PhoneForm(BaseModelForm):
     class Meta:
         model = User
@@ -144,15 +148,38 @@ class PhoneForm(BaseModelForm):
             return phone_num
 
 
-
-#更新个人信息验证
+# 更新个人信息验证
 class InfoModelForm(forms.ModelForm):
-    gender=forms.ChoiceField(choices=((1,'男'),(2,'女')))
+    gender = forms.ChoiceField(choices=((1, '男'), (2, '女')))
+
     class Meta:
-        model=UserInfo
-        fields=['nickname','birthday','school','location','hometown']
-        error_messages={'nickname':{'max_length': '昵称不能超过8个字符'},
-                        'school':{'max_length': '不能超过20个字符'},
-                        'location':{'max_length': '不能超过20个字符'},
-                        'hometown':{'max_length': '不能超过20个字符'},
-                        }
+        model = UserInfo
+        fields = ['nickname', 'birthday', 'school', 'location', 'hometown']
+        error_messages = {'nickname': {'max_length': '昵称不能超过8个字符'},
+                          'school': {'max_length': '不能超过20个字符'},
+                          'location': {'max_length': '不能超过20个字符'},
+                          'hometown': {'max_length': '不能超过20个字符'},
+                          }
+
+#地址表单验证
+class AddressModelForm(forms.ModelForm):
+    class Meta:
+        model = UserAddress
+        exclude = ['is_del', 'create_time', 'update_time']
+        error_messages = {'name': {'max_length': '姓名不能超过10位数',
+                                   'required': '收货人必填'},
+                          'brief': {'max_length': '详细地址不能超过20位数',
+                                    'required': '详细地址必填'},
+                          'hcity': {'max_length': '不能超过10位数',
+                                    'required': '所在地区必填'},
+                          'phone_num': {'required': '手机号码必填'},
+                          }
+    def clean(self):
+        #判断一个用户最多职能保存6个地址
+        count=UserAddress.objects.filter(pk=self.data.get('userinfo')).count()
+        if count >= 6:
+            raise forms.ValidationError({"hcity": "收货地址最多只能保存6条"})
+        if self.cleaned_data.get('is_default'):
+            UserAddress.objects.filter(userinfo_id=self.data.get('userinfo')).update(is_default=False)
+        else:
+            return self.cleaned_data
